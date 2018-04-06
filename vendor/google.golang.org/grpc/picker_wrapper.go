@@ -19,6 +19,7 @@
 package grpc
 
 import (
+	"fmt"
 	"sync"
 
 	"golang.org/x/net/context"
@@ -112,6 +113,7 @@ func (bp *pickerWrapper) pick(ctx context.Context, failfast bool, opts balancer.
 
 		ch = bp.blockingCh
 		p = bp.picker
+		fmt.Printf("%#v\n", p)
 		bp.mu.Unlock()
 
 		subConn, done, err := p.Pick(ctx, opts)
@@ -124,6 +126,7 @@ func (bp *pickerWrapper) pick(ctx context.Context, failfast bool, opts balancer.
 				if !failfast {
 					continue
 				}
+				println("here i am")
 				return nil, nil, status.Errorf(codes.Unavailable, "%v, latest connection error: %v", err, bp.connectionError())
 			default:
 				// err is some other error.

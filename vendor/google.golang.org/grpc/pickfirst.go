@@ -19,6 +19,7 @@
 package grpc
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/connectivity"
@@ -97,6 +98,7 @@ type picker struct {
 }
 
 func (p *picker) Pick(ctx context.Context, opts balancer.PickOptions) (balancer.SubConn, func(balancer.DoneInfo), error) {
+	fmt.Printf("hiya %v\n", p.err)
 	if p.err != nil {
 		return nil, nil, p.err
 	}

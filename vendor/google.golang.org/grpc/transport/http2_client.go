@@ -399,6 +399,7 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	t.mu.Lock()
 	if t.activeStreams == nil {
 		t.mu.Unlock()
+		println("http2_client.go:1")
 		return nil, ErrConnClosing
 	}
 	if t.state == draining {
@@ -407,6 +408,7 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	}
 	if t.state != reachable {
 		t.mu.Unlock()
+		println("http2_client.go:2")
 		return nil, ErrConnClosing
 	}
 	t.mu.Unlock()
@@ -493,6 +495,7 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	}
 	if t.state != reachable {
 		t.mu.Unlock()
+		println("http2_client.go:3")
 		return nil, ErrConnClosing
 	}
 	s := t.newStream(ctx, callHdr)
@@ -612,6 +615,7 @@ func (t *http2Client) Close() error {
 			s.headerDone = true
 		}
 		s.mu.Unlock()
+		println("http2_client.go:4")
 		s.write(recvMsg{err: ErrConnClosing})
 	}
 	if t.statsHandler != nil {
@@ -653,6 +657,7 @@ func (t *http2Client) Write(s *Stream, hdr []byte, data []byte, opts *Options) e
 	case <-s.done:
 		return io.EOF
 	case <-t.ctx.Done():
+		println("http2_client.go:5")
 		return ErrConnClosing
 	default:
 	}

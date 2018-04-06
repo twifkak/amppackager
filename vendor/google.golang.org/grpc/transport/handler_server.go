@@ -179,12 +179,14 @@ func (ht *serverHandlerTransport) do(fn func()) error {
 	// Avoid a panic writing to closed channel. Imperfect but maybe good enough.
 	select {
 	case <-ht.closedCh:
+		println("handler_server.go:1")
 		return ErrConnClosing
 	default:
 		select {
 		case ht.writes <- fn:
 			return nil
 		case <-ht.closedCh:
+			println("handler_server.go:2")
 			return ErrConnClosing
 		}
 	}

@@ -192,6 +192,7 @@ func (qb *quotaPool) get(v int, wc waiters) (int, uint32, error) {
 		case <-wc.ctx.Done():
 			return 0, 0, ContextErr(wc.ctx.Err())
 		case <-wc.tctx.Done():
+			println("control.go")
 			return 0, 0, ErrConnClosing
 		case <-wc.done:
 			return 0, 0, io.EOF

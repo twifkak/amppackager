@@ -246,11 +246,13 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 			return nil, toRPCErr(ctx.Err())
 		default:
 		}
+		println("newClientStream 5a")
 
 		t, done, err = cc.getTransport(ctx, c.failFast)
 		if err != nil {
 			return nil, err
 		}
+		println("newClientStream 5b")
 
 		s, err = t.NewStream(ctx, callHdr)
 		if err != nil {

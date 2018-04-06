@@ -15,6 +15,19 @@ You generally only need to submit a CLA once, so if you've already submitted one
 (even if it was for a different project), you probably don't need to do it
 again.
 
+## Commit hooks
+
+If making any changes to the proto, please install a `.git/hooks/pre-commit`
+that looks like:
+
+```sh
+protoc amphtmltransformer/amphtmltransformer.proto --go_out=plugins=grpc:.
+```
+
+This means that developers will need to install the [protobuf
+compiler](https://github.com/google/protobuf) and [its Go
+plugin](https://github.com/golang/protobuf), but users will not.
+
 ## Code reviews
 
 All submissions, including submissions by project members, require review. We

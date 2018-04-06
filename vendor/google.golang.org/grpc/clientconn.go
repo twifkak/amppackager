@@ -1155,6 +1155,7 @@ func (ac *addrConn) createTransport(connectRetryNum, ridx int, backoffDeadline, 
 		newTr, err := transport.NewClientTransport(connectCtx, ac.cc.ctx, target, copts, onPrefaceReceipt)
 		if err != nil {
 			cancel()
+			println("calling updateConnectionError from clientconn.go")
 			ac.cc.blockingpicker.updateConnectionError(err)
 			ac.mu.Lock()
 			if ac.state == connectivity.Shutdown {

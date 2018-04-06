@@ -115,8 +115,13 @@ frontend as specified above. In addition, it:
     different instances of the packager. We recommend using a different
     certificate/key pair from your normal web-serving traffic. See the example
     config file for details.
-  * Must be able to make outgoing connections to `cdn.ampproject.org` on port
-    443.
+  * Must be able to make outgoing connections to
+    `amphtmltransformer.googleapis.com` on port 443.
+  * Must have an API key obtained from
+    [Google Cloud Console](https://console.cloud.google.com/), per
+    [these instructions](https://support.google.com/cloud/answer/6158862), with
+    access to the AMP HTML Transformer API, per
+    [these instructions](https://support.google.com/cloud/answer/6158841).
   * Should have its stdout redirected to a log file somewhere, probably rotated.
   * Should not run as superuser.
 

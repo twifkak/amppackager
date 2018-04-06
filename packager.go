@@ -16,8 +16,10 @@ package amppackager
 
 import (
 	"bytes"
+	"context"
 	"crypto"
 	"crypto/x509"
+	"flag"
 	"io"
 	"io/ioutil"
 	"log"
@@ -27,10 +29,21 @@ import (
 	"regexp"
 	"time"
 
+	"google.golang.org/api/option"
+	"google.golang.org/api/transport"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
+
 	"github.com/nyaxt/webpackage/go/signedexchange"
 	"github.com/pkg/errors"
 	"github.com/pquerna/cachecontrol"
+
+	amptransformer "github.com/ampproject/amppackager/amphtmltransformer"
 )
+
+// TODO(twifkak): Remove this flag once the transformer is live in prod.
+var flagTransformer = flag.String("transformer", "", "Address of AMP HTML Transformer API.")
 
 // The base URL for transformed fetch URLs.
 var ampCDNBase = "https://cdn.ampproject.org/c/"
@@ -173,6 +186,8 @@ type Packager struct {
 	client      *http.Client
 	baseURL     *url.URL
 	urlSets     []URLSet
+	transformer amptransformer.AmpHtmlTransformerClient
+	ctx context.Context
 }
 
 func NewPackager(cert *x509.Certificate, key crypto.PrivateKey, packagerBase string, urlSets []URLSet) (*Packager, error) {
@@ -194,7 +209,22 @@ func NewPackager(cert *x509.Certificate, key crypto.PrivateKey, packagerBase str
 		// TODO(twifkak): Load-test and see if default transport settings are okay.
 		Timeout: 60 * time.Second,
 	}
-	return &Packager{cert, key, validityURL, &client, baseURL, urlSets}, nil
+	ctx := context.Background()
+	//conn, err := grpc.Dial(*flagTransformer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+	dialCtx, cancel := context.WithTimeout(ctx, 10 * time.Second)
+	defer cancel()
+	conn, err := transport.DialGRPC(
+		dialCtx,
+		option.WithGRPCDialOption(grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, ""))),
+		option.WithEndpoint(*flagTransformer),
+		option.WithAPIKey("AIzaSyCkmgPAQVdjGIJMM2W1pBbGa2l9sCpF9XE"),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "dialing gRPC")
+	}
+	// Client is thread-safe per https://github.com/grpc/grpc-go/issues/85.
+	transformer := amptransformer.NewAmpHtmlTransformerClient(conn)
+	return &Packager{cert, key, validityURL, &client, baseURL, urlSets, transformer, ctx}, nil
 }
 
 func (this Packager) fetchURL(url *url.URL) (*http.Request, *http.Response, *HTTPError) {
@@ -204,7 +234,6 @@ func (this Packager) fetchURL(url *url.URL) (*http.Request, *http.Response, *HTT
 	}
 	ampURL += url.Host + url.RequestURI()
 	log.Printf("Fetching URL: %q\n", ampURL)
-	// TODO(twifkak): Translate into AMP CDN URL, until transform API is available.
 	req, err := http.NewRequest(http.MethodGet, ampURL, nil)
 	req.Header.Set("User-Agent", userAgent)
 	// TODO(twifkak): Should we add 'Accept-Charset: utf-8'? The AMP Transformer API requires utf-8.
@@ -216,6 +245,28 @@ func (this Packager) fetchURL(url *url.URL) (*http.Request, *http.Response, *HTT
 		return nil, nil, NewHTTPError(http.StatusBadGateway, "Error fetching: ", err)
 	}
 	return req, resp, nil
+}
+
+// The Header will only contain one value per key.
+func (this Packager) transformAMP(fetchURL string, fetchBody []byte) ([]byte, http.Header, error) {
+	req := amptransformer.TransformAmpHtmlRequest{
+		AmpHtmlDocumentBody: fetchBody,
+		AmpHtmlDocumentUrl: []byte(fetchURL),
+	}
+	ctx, cancel := context.WithTimeout(this.ctx, 10 * time.Second)
+	defer cancel()
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("x-goog-api-key", "AIzaSyCkmgPAQVdjGIJMM2W1pBbGa2l9sCpF9XE"))
+	// TODO(twifkak): UseCompressor?
+	resp, err := this.transformer.TransformAmpHtml(ctx, &req) //, grpc.FailFast(false))
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "while transforming AMP for URL: ", fetchURL)
+	}
+	headers := http.Header{}
+	for _, header := range resp.TransformedResponseHeaders {
+		// TODO(twifkak): Check for duplicates.
+		headers.Set(string(header.Name), string(header.Value))
+	}
+	return resp.TransformedDocumentBody, headers, nil
 }
 
 func (this Packager) genCertURL(cert *x509.Certificate) (*url.URL, error) {
@@ -276,7 +327,13 @@ func (this Packager) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	exchange, err := signedexchange.NewExchange(signURL, http.Header{}, fetchResp.StatusCode, fetchResp.Header, fetchBody, miRecordSize)
+	transformedBody, transformedHeaders, err := this.transformAMP(fetch, fetchBody)
+	if err != nil {
+		NewHTTPError(http.StatusInternalServerError, "Error transforming AMP: ", err).LogAndRespond(resp)
+		return
+	}
+
+	exchange, err := signedexchange.NewExchange(signURL, http.Header{}, fetchResp.StatusCode, transformedHeaders, transformedBody, miRecordSize)
 	if err != nil {
 		NewHTTPError(http.StatusInternalServerError, "Error building exchange: ", err).LogAndRespond(resp)
 		return

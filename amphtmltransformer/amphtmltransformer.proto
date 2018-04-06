@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package google.search.amphtmltransformer.v1;
+
+// The AMP HTML Transformer API transforms valid AMP HTML documents sent
+// over the internet into a "transformed AMP HTML" document response, suitable
+// for serving in the AMP Cache without further modification.
+service AmpHtmlTransformer {
+  // Interface for transforming an AMP HTML Document into a "transformed
+  // AMP HTML" document.
+  rpc TransformAmpHtml(TransformAmpHtmlRequest)
+      returns (TransformAmpHtmlResponse) {
+  }
+}
+
+// Request containing an AMP HTML Document to be transformed.
+message TransformAmpHtmlRequest {
+  // Contents of a valid AMP HTML document. The encoding format must be
+  // interchange valid UTF8, or may result in an error.
+  bytes amp_html_document_body = 1 [ctype = CORD];
+  // The internet addressable URL of the AMP HTML document. Must be an absolute
+  // value with an 'https' protocol.
+  bytes amp_html_document_url = 2;
+}
+
+// Response containing a "transformed AMP HTML" document.
+message TransformAmpHtmlResponse {
+  // Contents of a "transformed AMP HTML" document. The encoding format will
+  // be interchange valid UTF8. This document will be suitible for serving
+  // on the AMP Cache without further modification. This field is only set
+  // if both `is_valid_document_body` and `is_valid_document_url` are true.
+  bytes transformed_document_body = 1 [ctype = CORD];
+  // HTTP response headers for the "transformed AMPTHML" document. These will
+  // include resource preload headers, such as those for AMP Javascript. This
+  // will also include an X-AMP-Cache-Signature header with a signature that
+  // must be included for the AMP cache to serve the document. This is not a
+  // complete set of response headers. It only includes those specifically
+  // required by the AMP Cache for a "transformed AMPTHML" document. Clients
+  // should add additional headers before serving this response.
+  repeated ResponseHeader transformed_response_headers = 2;
+
+  // True iff the amp_html_document_body in the `TransformAmpHtmlRequest` is
+  // valid AMP HTML. This field can be used for debugging why the
+  // `transformed_document_body` is unset.
+  bool is_valid_document_body = 3;
+  // True iff the amp_html_document_url in the `TransformAmpHtmlRequest` is
+  // valid for transforming the given AMP HTML document. This field can be
+  // used for debugging why the `transformed_document_body` is unset.
+  bool is_valid_document_url = 4;
+}
+
+// ResponseHeader contains an HTTP Response header name/value pair.
+message ResponseHeader {
+  // HTTP Response header name.
+  bytes name = 1;
+  // HTTP Response header value.
+  bytes value = 2;
+}

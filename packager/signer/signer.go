@@ -297,6 +297,7 @@ func (this *Signer) genCertURL(cert *x509.Certificate, signURL *url.URL) (*url.U
 		return nil, errors.Wrapf(err, "parsing cert URL %q", urlPath)
 	}
 	ret := baseURL.ResolveReference(certHRef)
+	ret.RawQuery = "a"
 	return ret, nil
 }
 

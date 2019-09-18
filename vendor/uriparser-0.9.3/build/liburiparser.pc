@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=/usr/local
+libdir=/usr/local/lib
+includedir=/usr/local/include
+
+Name: liburiparser
+Description: URI parsing and handling library
+
+Version: 0.9.3
+URL: https://uriparser.github.io/
+Libs: -L${libdir} -luriparser
+Cflags: -I${includedir}

@@ -1,0 +1,1 @@
+/usr/bin/cc   -fvisibility=hidden -O3 -DNDEBUG  -rdynamic CMakeFiles/uriparse.dir/tool/uriparse.c.o  -o uriparse -Wl,-rpath,/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build: liburiparser.so.1.0.26 

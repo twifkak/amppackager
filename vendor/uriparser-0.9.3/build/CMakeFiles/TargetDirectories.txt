@@ -1,0 +1,8 @@
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/install/strip.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/install/local.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/uriparser.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/edit_cache.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/uriparse.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/rebuild_cache.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/list_install_components.dir
+/usr/local/google/home/twifkak/.go/src/github.com/ampproject/amppackager/vendor/uriparser-0.9.3/build/CMakeFiles/install.dir

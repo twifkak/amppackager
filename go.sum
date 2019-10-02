@@ -51,6 +51,8 @@ github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
 github.com/exoscale/egoscale v0.18.1/go.mod h1:Z7OOdzzTOz1Q1PjQXumlz9Wn/CddH0zSYdCF3rnBKXE=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
+github.com/flyingmutant/rapid v0.0.0-20190904072629-5761511f78c8 h1:OnvMbsaIwSDKu9PAFhSLcjJZcCpW/cTAwSa2ysl2NrQ=
+github.com/flyingmutant/rapid v0.0.0-20190904072629-5761511f78c8/go.mod h1:DPTQ0FCCNncrUta8PWuWx0OTWIS4Q8RxPXn45rqMoPg=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-acme/lego/v3 v3.0.2 h1:cnS+URiPzkt2pd7I2WlZtFyt2ihQ762nouBybY4djjw=

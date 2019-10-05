@@ -12,6 +12,8 @@ import (
 // #cgo CFLAGS: -I${SRCDIR}/../../../vendor/uriparser-0.9.3/include
 // #cgo LDFLAGS: -L${SRCDIR}/../../../vendor/uriparser-0.9.3/build -luriparser
 //
+// #include "stdio.h"
+// #include "string.h"
 // #include "uriparser/Uri.h"
 // int URLErrorCode(const char* url) {
 //   UriUriA parsed;
@@ -24,6 +26,16 @@ import (
 //   if (uriNormalizeSyntaxA(&parsed1)) return 0;
 //   if (uriNormalizeSyntaxA(&parsed2)) return 0;
 //   return uriEqualsUriA(&parsed1, &parsed2);
+//   //int len1, len2;
+//   //if (uriToStringCharsRequiredA(&parsed1, &len1)) return 0;
+//   //if (uriToStringCharsRequiredA(&parsed2, &len2)) return 0;
+//   //char* str1 = malloc(len1+1);  // TODO(twifkak): delete
+//   //if (uriToStringA(str1, &parsed1, len1, &len1)) return 0;
+//   //char* str2 = malloc(len2+1);  // TODO(twifkak): delete
+//   //if (uriToStringA(str2, &parsed2, len2, &len2)) return 0;
+//   //fprintf(stderr, "failure:\n");
+//   //fprintf(stderr, "%s -> %s\n", str1, str2);
+//   //return (strcmp(str1, str2) == 0) ? 1 : 0;
 // }
 import "C"
 
@@ -44,6 +56,7 @@ func URLIsValid(url string) bool {
 
 func URLsMatch(url1, url2 string) bool {
 	if containsNUL(url1) || containsNUL(url2) {
+		println("contains nul")
 		return false
 	}
 	return C.URLsMatch(C.CString(url1), C.CString(url2)) == 1

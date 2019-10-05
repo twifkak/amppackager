@@ -186,6 +186,16 @@ func TestKnownBug_CombiningChar(t *testing.T) {
 }
 */
 
+func EncodingPreservesMeaning1(t *testing.T, rawURL string) {
+	u, err := url.Parse(rawURL)
+	require.NoError(t, err)
+
+	s, err := FormatURL(u)
+	require.NoError(t, err)
+
+	require.True(t, util_test.URLsMatch(rawURL, s), "%s -> %s", rawURL, s)
+}
+
 func EncodingPreservesMeaning(t *rapid.T, rawURL string) {
 	u, err := url.Parse(rawURL)
 	require.NoError(t, err)
@@ -207,7 +217,7 @@ func EncodingPreservesMeaning(t *rapid.T, rawURL string) {
 func TestValidURLsAreSemanticallyEquivalent_HTTPS(t *testing.T) {
 	urls := rapid.Strings().Filter(func(raw string) bool {
 		u, err := url.Parse("https://" + raw)
-		return err == nil && u.IsAbs()
+		return err == nil && u.IsAbs() && util_test.URLIsValid(raw)
 	})
 	rapid.Check(t, func(t *rapid.T) {
 		EncodingPreservesMeaning(t, "https://" + urls.Draw(t, "url").(string))
@@ -215,5 +225,5 @@ func TestValidURLsAreSemanticallyEquivalent_HTTPS(t *testing.T) {
 }
 
 func TestKnownBug2(t *testing.T) {
-	EncodingPreservesMeaning(t, "https://")
+	EncodingPreservesMeaning1(t, "https://")
 }

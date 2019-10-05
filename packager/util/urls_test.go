@@ -198,7 +198,7 @@ func EncodingPreservesMeaning(t *rapid.T, rawURL string) {
 		t.SkipNow()
 	}
 
-	require.True(t, util_test.URLsMatch(rawURL, s))
+	require.True(t, util_test.URLsMatch(rawURL, s), "%s -> %s", rawURL, s)
 }
 
 // Ensure that, given a valid URL, the only modifications are those that
@@ -212,4 +212,8 @@ func TestValidURLsAreSemanticallyEquivalent_HTTPS(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
 		EncodingPreservesMeaning(t, "https://" + urls.Draw(t, "url").(string))
 	})
+}
+
+func TestKnownBug2(t *testing.T) {
+	EncodingPreservesMeaning(t, "https://")
 }
